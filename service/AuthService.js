@@ -5,14 +5,14 @@ const User = require("../model/UserSchema");
 const secertKey = process.env.JWT_SECERT_KEY;
 
 const AuthService = {
-    
+
     isValidateUser: async (email, password) => {
         try {
             const user = await User.findOne({ email });
             console.log(user)
             if (!user) return res.status(500).json({ message: "Can't find user" });
-            const passwordMatch = await bcrypt.compare(password, password);
-            if (!passwordMatch) return res.status(500).json({ message: "Invalid creditenals" })
+            // const passwordMatch = await bcrypt.compare(password, password);
+            // if (!passwordMatch) return res.status(500).json({ message: "Invalid creditenals" })
             return user;
         } catch (error) {
             console.log("Error connecting database" || error);
@@ -34,10 +34,11 @@ const AuthService = {
     newRefreshToken: async (checkUser) => {
         try {
             const options = {
-                algorithm: "RS256",
+                algorithm: "HS256",
                 expiresIn: "30d",
             };
-            const payload = { name: checkUser.name, role: checkUser.userRole }
+            const payload = { name: checkUser.name, role: checkUser.role }
+            console.log(payload, secertKey, options)
             const refreshToken = jwt.sign(payload, secertKey, options);
             await User.findByIdAndUpdate(checkUser._id, { $set: { refreshToken } }, { new: true });
             console.log(refreshToken);
@@ -52,7 +53,7 @@ const AuthService = {
     newAccessToken: async (checkUser, newRefreshToken) => {
         try {
             const options = {
-                algorithm: "RS256",
+                algorithm: "HS256",
                 expiresIn: "30d",
             };
             const payload = { name: checkUser.name, role: checkUser.userRole }

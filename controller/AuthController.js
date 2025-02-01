@@ -6,8 +6,8 @@ exports.Login = async (req, res) => {
         const checkUser = await AuthService.isValidateUser(email, password);
         const newRefreshToken = await AuthService.newRefreshToken(checkUser);
         const newAccessToken = await AuthService.newAccessToken(checkUser, newRefreshToken);
-        const setCookie = await AuthService.saveCookie(newRefreshToken, newAccessToken);
-        return res.status(200).json({ message: "Login successful", data: userData });
+        const setCookie = await AuthService.saveCookie(res, newRefreshToken, newAccessToken);
+        return res.status(200).json({ message: "Login successful", data: checkUser });
     } catch (error) {
         console.log(error || "Server Error")
     }
